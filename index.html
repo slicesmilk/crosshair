@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+
+        <title>Crosshair</title>
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <script src="https://unpkg.com/vue"></script>
+
+        <style>
+            #editor {
+                position: relative;
+            }
+
+            #crosshair {
+                font-size: 0;
+                line-height: 0;
+                text-align: center;
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #crosshair div {
+                display: inline-block;
+                background: orange;
+            }
+
+            #crosshair .transparent {
+                background: transparent;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="app">
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <div class="card mt-4 mb-4">
+                            <h2 class="card-header">
+                                <strong>Preview</strong>
+                            </h2>
+
+                            <div class="card-body">
+                                <div id="editor">
+                                    <div ref="crosshair" id="crosshair">
+                                        <div class="transparent">
+                                            <div ref="top" class="part top"></div>
+
+                                            <div class="text-center d-flex align-items-center justify-content-center transparent">
+                                                <div ref="left" class="part left"></div><div ref="gap" class="gap transparent"></div><div ref="right" class="part right"></div>
+                                            </div>
+
+                                            <div ref="bottom" class="part bottom"></div>
+                                        </div>
+                                    </div>
+
+                                    <div id="background">
+                                        <img src="https://i.imgur.com/FNrcJ6U.jpg" class="img-fluid">
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <div id="options">
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="card">
+                                                <strong class="card-header">Options</strong>
+
+                                                <div class="card-body">
+                                                    <div v-for="option in options" class="form-group">
+                                                        <label class="w-100">{{ option.label }}</label>
+
+                                                        <input
+                                                            v-on:input="onChange($event, option)"
+                                                            :name="option.name"
+                                                            :min="option.min"
+                                                            :max="option.max"
+                                                            :step="option.step"
+                                                            :value="option.value"
+                                                            type="range"
+                                                            class="form-control">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col">
+                                            <div class="card">
+                                                <strong class="card-header">Colour</strong>
+
+                                                <div class="card-body">
+                                                    <div v-for="colour in colours" class="form-group">
+                                                        <label class="w-100">{{ colour.label }}</label>
+
+                                                        <input
+                                                            v-on:input="onChange($event, colour)"
+                                                            :name="colour.name"
+                                                            :min="colour.min"
+                                                            :max="colour.max"
+                                                            :step="colour.step"
+                                                            :value="colour.value"
+                                                            type="range"
+                                                            class="form-control">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-footer">
+                                <button v-on:click="onExport" class="btn btn-success">Export</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            new Vue({
+                el: '#app',
+
+                data: {
+                    options: {
+                        size: {
+                            label: 'Size',
+                            name: 'size',
+                            min: 0.5,
+                            max: 20,
+                            step: .5,
+                            value: 5
+                        },
+
+                        thickness: {
+                            label: 'Thickness',
+                            name: 'thickness',
+                            min: 0.5,
+                            max: 20,
+                            step: .5,
+                            value: 1
+                        },
+
+                        gap: {
+                            label: 'Gap',
+                            name: 'gap',
+                            min: -5,
+                            max: 15,
+                            step: 1,
+                            value: 0
+                        }
+                    },
+
+                    colours: {
+                        red: {
+                            label: 'Red',
+                            name: 'red',
+                            min: 0,
+                            max: 255,
+                            step: 1,
+                            value: 50
+                        },
+
+                        green: {
+                            label: 'Green',
+                            name: 'green',
+                            min: 0,
+                            max: 255,
+                            step: 1,
+                            value: 250
+                        },
+
+                        blue: {
+                            label: 'Blue',
+                            name: 'blue',
+                            min: 0,
+                            max: 255,
+                            step: 1,
+                            value: 50
+                        }
+                    }
+                },
+
+                mounted () {
+                    let defaults = {
+                        size: this.options.size.value,
+                        thickness: this.options.thickness.value,
+                        gap: this.options.gap.value
+                    };
+
+                    this.$nextTick(() => {
+                        this.draw();
+                    });
+                },
+
+                methods: {
+                    onExport () {
+                        alert(this.config);
+                    },
+
+                    onChange (event, option) {
+                        let value = event.target.value;
+
+                        if (option.name === 'red' || option.name === 'green' || option.name === 'blue') {
+                            this.colours[option.name].value = value;
+                        } else {
+                            this.options[option.name].value = value;
+                        }
+
+                        this.draw();
+                    },
+
+                    draw () {
+                        // left
+                        this.update('left', 'width', this.width);
+                        this.update('left', 'height', this.height);
+
+                        // right
+                        this.update('right', 'width', this.width);
+                        this.update('right', 'height', this.height);
+
+                        // top
+                        this.update('top', 'width', this.height);
+                        this.update('top', 'height', this.width);
+
+                        // bottom
+                        this.update('bottom', 'width', this.height);
+                        this.update('bottom', 'height', this.width);
+
+                        // gap
+                        this.update('gap', 'width', this.gap);
+                        this.update('gap', 'height', this.gap);
+
+                        // gap resets
+                        if (this.options.gap.value == this.options.gap.min) {
+                            console.log('yes');
+
+                            this.update('top', 'height', this.width - 1);
+                            this.update('bottom', 'height', this.width - 1);
+                        }
+
+                        // colour
+                        let parts = document.getElementsByClassName('part');
+
+                        for (var i = parts.length - 1; i >= 0; i--) {
+                            parts[i].style.background = this.colour;
+                        }
+                    },
+
+                    update (ref, rule, value) {
+                        this.$refs[ref].style[rule] = value + 'px';
+                    }
+                },
+
+                computed: {
+                    width () {
+                        return this.options.size.value * 2;
+                    },
+
+                    height () {
+                        return this.options.thickness.value * 2;
+                    },
+
+                    gap () {
+                        return (this.height) + (this.options.gap.value * 2) + 4 * 2;
+                    },
+
+                    colour () {
+                        return `rgba(${this.colours.red.value}, ${this.colours.green.value}, ${this.colours.blue.value}, 1)`;
+                    },
+
+                    configSize () {
+                        return `cl_crosshairsize "${this.options.size.value}";`;
+                    },
+
+                    configThickness () {
+                        return `cl_crosshairthickness "${this.options.thickness.value}";`;
+                    },
+
+                    configGap () {
+                        return `cl_crosshairgap "${this.options.gap.value}";`;
+                    },
+
+                    configColour () {
+                        return `cl_crosshaircolor "5"; cl_crosshaircolor_r "${this.colours.red.value}";cl_crosshaircolor_g "${this.colours.green.value}";cl_crosshaircolor_b "${this.colours.blue.value}";`;
+                    },
+
+                    configStyle () {
+                        return `cl_crosshairstyle "4";`;
+                    },
+
+                    config () {
+                        return this.configSize + this.configThickness + this.configGap + this.configColour + this.configStyle;
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>
