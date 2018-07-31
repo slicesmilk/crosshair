@@ -231,9 +231,11 @@
                         let origin = window.location.origin;
                         let extension = window.location.pathname;
 
-                        window.location = this.share;
+                        let onConfirm = confirm(origin + extension + this.share);
 
-                        alert(origin + extension + this.share);
+                        if (onConfirm) {
+                            window.location = this.share;
+                        }
                     },
 
                     onChange (event, option) {
