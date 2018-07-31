@@ -243,6 +243,10 @@
                             this.options[option.name].value = value;
                         }
 
+                        // update the url to reflect the changes
+                        window.history.replaceState(null, '', this.share)
+
+                        // draw the changes
                         this.draw();
                     },
 
