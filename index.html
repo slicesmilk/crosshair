@@ -122,8 +122,9 @@
                                 </div>
                             </div>
 
-                            <div class="card-footer">
-                                <button v-on:click="onExport" class="btn btn-success">Export</button>
+                            <div class="card-footer d-flex justify-content-between">
+                                <button v-on:click="onExport" class="btn btn-success">Save</button>
+                                <button v-on:click="onShare" class="btn btn-link">Share Crosshair</button>
                             </div>
                         </div>
                     </div>
@@ -196,6 +197,20 @@
                 },
 
                 mounted () {
+                    let params = new URLSearchParams(document.location.search);
+
+                    for (var key in this.options) {
+                        if (params.has(key)) {
+                            this.options[key].value = params.get(key);
+                        }
+                    }
+
+                    for (var key in this.colours) {
+                        if (params.has(key)) {
+                            this.colours[key].value = params.get(key);
+                        }
+                    }
+
                     let defaults = {
                         size: this.options.size.value,
                         thickness: this.options.thickness.value,
@@ -210,6 +225,13 @@
                 methods: {
                     onExport () {
                         alert(this.config);
+                    },
+
+                    onShare () {
+                        let origin = window.location.origin;
+                        let extension = window.location.pathname;
+
+                        alert(origin + extension + this.share);
                     },
 
                     onChange (event, option) {
@@ -303,6 +325,10 @@
 
                     config () {
                         return this.configSize + this.configThickness + this.configGap + this.configColour + this.configStyle;
+                    },
+
+                    share () {
+                        return `?size=${this.options.size.value}&thickness=${this.options.thickness.value}&gap=${this.options.gap.value}&red=${this.colours.red.value}&green=${this.colours.green.value}&blue=${this.colours.blue.value}`;
                     }
                 }
             });
