@@ -49,6 +49,10 @@
                             </h2>
 
                             <div class="card-body">
+                                <div id="messages">
+                                    <div class="alert alert-warning">This is a quick and very basic crosshair editor for CS:GO, created by <a href="https://steamcommunity.com/profiles/76561198175445977/">i'm terrible at this game</a>.</div>
+                                </div>
+
                                 <div id="editor">
                                     <div ref="crosshair" id="crosshair">
                                         <div class="transparent">
@@ -243,8 +247,6 @@
 
                         // gap resets
                         if (this.options.gap.value == this.options.gap.min) {
-                            console.log('yes');
-
                             this.update('top', 'height', this.width - 1);
                             this.update('bottom', 'height', this.width - 1);
                         }
